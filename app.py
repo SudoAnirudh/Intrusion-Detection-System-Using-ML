@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 model = joblib.load('models/model.pkl')
 
-EMAIL_ADDRESS = "anirudhsudheer@gmail.com"
-EMAIL_PASSWORD = "zqzr tlrz dxcx fydq"
+EMAIL_ADDRESS = ""#your email address
+EMAIL_PASSWORD = ""# USE APP PASSWORD
 
 def send_email(subject, message, recipients):
     msg = MIMEMultipart()
@@ -96,7 +96,7 @@ def predict():
         send_email(
             subject="Intrusion Alert!",
             message={key: value for key, value in request.form.items()},
-            recipients=["anaghaktp@gmail.com"] 
+            recipients=[""] #RECIPIENT MAIL
         )
 
     return render_template('index.html', output=output)
