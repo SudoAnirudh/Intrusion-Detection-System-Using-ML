@@ -1,0 +1,52 @@
+/* Basic Page Styling */
+body {
+  font-family: sans-serif;
+  margin: 20px; /* Add some margin around the content */
+  background-color: #f4f4f4; /* Light gray background */
+}
+
+.login {
+  background-color: #fff; /* White background for the form container */
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+h1 {
+  text-align: center;
+  color: #333; /* Darker gray for the heading */
+}
+
+/* Form Styling */
+label {
+  display: block; /* Makes labels take up the full width */
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type="text"],
+select {
+  width: 100%; /* Makes inputs take up the full width */
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box; /* Includes padding and border in the width */
+}
+
+button[type="submit"] {
+  background-color: #4CAF50; /* Green button */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+h3 {
+    text-align: center; /* Center the output message */
+}
