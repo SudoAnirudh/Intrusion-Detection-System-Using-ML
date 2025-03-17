@@ -1,0 +1,9 @@
+2025-03-17 22:34:42,175 - WARNING - Model file trained_model.joblib not found. Creating a basic default model.
+2025-03-17 22:34:42,305 - INFO - Created and saved default model
+2025-03-17 22:34:42,305 - INFO - Starting real-time monitoring...
+2025-03-17 22:34:42,305 - ERROR - Error during packet capture test: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket or conf.L3socket6 to access layer 3
+2025-03-17 22:34:42,305 - ERROR - Please ensure Npcap is installed and you have administrative privileges.
+2025-03-17 22:39:23,720 - INFO - Loaded existing model from file
+2025-03-17 22:39:23,720 - INFO - Starting real-time monitoring...
+2025-03-17 22:39:23,721 - ERROR - Error during packet capture test: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket or conf.L3socket6 to access layer 3
+2025-03-17 22:39:23,721 - ERROR - Please ensure Npcap is installed and you have administrative privileges.

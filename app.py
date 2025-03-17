@@ -4,12 +4,24 @@ import joblib
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from flask_socketio import SocketIO, emit
+from real_time_monitor import RealTimeMonitor
+import threading
+import time
+import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
+
 model = joblib.load('models/model.pkl')
 
 EMAIL_ADDRESS = ""#your email address
 EMAIL_PASSWORD = ""# USE APP PASSWORD
+
+# Global monitor instance
+monitor = None
+stats_thread = None
 
 def send_email(subject, message, recipients):
     msg = MIMEMultipart()
@@ -47,6 +59,18 @@ def send_email(subject, message, recipients):
         print("Email sent successfully!")
     except Exception as e:
         print(f"Error sending email: {e}")
+
+def background_stats_update():
+    """Send stats updates to clients periodically"""
+    while True:
+        if monitor and not monitor.stop_flag.is_set():
+            stats_data = {
+                'packets_analyzed': monitor.stats['packets_analyzed'],
+                'intrusions': monitor.stats['intrusions'],
+                'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            socketio.emit('stats_update', stats_data)
+        time.sleep(1)
 
 @app.route('/')
 def home():
@@ -128,6 +152,31 @@ def results():
 
     return jsonify(output)
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('start_monitoring')
+def handle_start_monitoring():
+    global monitor, stats_thread
+    if monitor is None:
+        monitor = RealTimeMonitor()
+        capture_thread, analysis_thread = monitor.start_monitoring()
+        
+        if stats_thread is None:
+            stats_thread = threading.Thread(target=background_stats_update)
+            stats_thread.daemon = True
+            stats_thread.start()
+        
+        emit('monitoring_status', {'status': 'started'})
+
+@socketio.on('stop_monitoring')
+def handle_stop_monitoring():
+    global monitor
+    if monitor:
+        monitor.stop_monitoring()
+        monitor = None
+        emit('monitoring_status', {'status': 'stopped'})
+
 if __name__ == '__main__':
-    app.debug = True
-    app.run()
+    socketio.run(app, debug=True)

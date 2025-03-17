@@ -1,140 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Network Intrusion Detection System</title>
-  <link rel="stylesheet" href="static/style.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .login {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 600px;
-      overflow-y: auto;
-    }
-    .login h1 {
-      color: #0056b3;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: #0056b3;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 16px;
-    }
-    button:hover {
-      background: #004094;
-    }
-    .input-description {
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDS Real-Time Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-card {
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .alert-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-active {
+            background-color: #28a745;
+            box-shadow: 0 0 10px #28a745;
+        }
+        .status-inactive {
+            background-color: #dc3545;
+            box-shadow: 0 0 10px #dc3545;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="login">
-      <h1>Network Intrusion Detection System</h1>
-      <form action="{{ url_for('predict') }}" method="post" id="nid-form">
-        <label for="attack">Attack:</label>
-        <select id="attack" name="attack" required>
-          <option value="0">Other</option>
-          <option value="1">neptune</option>
-          <option value="2">normal</option>
-          <option value="3">satan</option>
-        </select>
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-4 text-center mb-4">IDS Real-Time Monitor</h1>
+                <div class="text-center mb-4">
+                    <button id="startBtn" class="btn btn-primary btn-lg mx-2">Start Monitoring</button>
+                    <button id="stopBtn" class="btn btn-danger btn-lg mx-2" disabled>Stop Monitoring</button>
+                </div>
+                <div class="text-center">
+                    <span class="status-indicator status-inactive" id="statusIndicator"></span>
+                    <span id="monitorStatus">Monitor Inactive</span>
+                </div>
+            </div>
+        </div>
 
-        <label for="count">Number of connections to the same destination host:</label>
-        <span class="input-description">Enter a positive integer value.</span>
-        <input type="number" name="count" id="count" min="0" placeholder="count" required />
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Packets Analyzed</h5>
+                        <h2 id="packetsAnalyzed" class="display-4 text-primary">0</h2>
+                        <p class="card-text">Total network packets processed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Intrusions Detected</h5>
+                        <h2 id="intrusionsDetected" class="display-4 text-danger">0</h2>
+                        <p class="card-text">Potential security threats identified</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <label for="dst_host_diff_srv_rate">Percentage of connections to different services:</label>
-        <span class="input-description">Enter a value between 0 and 1 (e.g., 0.5 for 50%).</span>
-        <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_diff_srv_rate" required />
-
-        <label for="dst_host_same_src_port_rate">Percentage of connections to the same source port:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_src_port_rate" required />
-
-        <label for="dst_host_same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_srv_rate" required />
-
-        <label for="dst_host_srv_count">Number of connections having the same port number:</label>
-        <span class="input-description">Enter a positive integer value.</span>
-        <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="dst_host_srv_count" required />
-
-        <label for="flag">Status of the connection:</label>
-        <select id="flag" name="flag" required>
-          <option value="0">Other</option>
-          <option value="1">S0</option>
-          <option value="2">SF</option>
-        </select>
-
-        <label for="last_flag">Last Flag:</label>
-        <input type="text" name="last_flag" id="last_flag" placeholder="last_flag" maxlength="50" required />
-
-        <label for="logged_in">Successfully logged in (1 for Yes, 0 for No):</label>
-        <select id="logged_in" name="logged_in" required>
-          <option value="0">No</option>
-          <option value="1">Yes</option>
-        </select>
-
-        <label for="same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01" placeholder="same_srv_rate" required />
-
-        <label for="serror_rate">Percentage of connections activating specific flags:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01" placeholder="serror_rate" required />
-
-        <label for="service_http">Destination network service used HTTP:</label>
-        <select id="service_http" name="service_http" required>
-          <option value="0">No</option>
-          <option value="1">Yes</option>
-        </select>
-
-        <button type="submit">Predict</button>
-      </form>
-
-      {% if output %}
-      <h3>Attack Class Prediction: <b style="color: red;">{{ output }}</b></h3>
-      {% endif %}
+        <div class="row">
+            <div class="col">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Alerts</h5>
+                        <div id="alertsList" class="list-group">
+                            <!-- Alerts will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let alertCount = 0;
+        const maxAlerts = 5;
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+
+        socket.on('stats_update', (data) => {
+            document.getElementById('packetsAnalyzed').textContent = data.packets_analyzed;
+            document.getElementById('intrusionsDetected').textContent = data.intrusions;
+            
+            if (data.intrusions > alertCount) {
+                addAlert(`New intrusion detected at ${data.timestamp}`);
+                alertCount = data.intrusions;
+            }
+        });
+
+        socket.on('monitoring_status', (data) => {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const monitorStatus = document.getElementById('monitorStatus');
+
+            if (data.status === 'started') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusIndicator.classList.remove('status-inactive');
+                statusIndicator.classList.add('status-active');
+                monitorStatus.textContent = 'Monitor Active';
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusIndicator.classList.remove('status-active');
+                statusIndicator.classList.add('status-inactive');
+                monitorStatus.textContent = 'Monitor Inactive';
+            }
+        });
+
+        function addAlert(message) {
+            const alertsList = document.getElementById('alertsList');
+            const alertElement = document.createElement('div');
+            alertElement.className = 'list-group-item list-group-item-danger animate__animated animate__fadeIn';
+            alertElement.textContent = message;
+
+            alertsList.insertBefore(alertElement, alertsList.firstChild);
+
+            // Remove old alerts if we have too many
+            while (alertsList.children.length > maxAlerts) {
+                alertsList.removeChild(alertsList.lastChild);
+            }
+        }
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            socket.emit('start_monitoring');
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            socket.emit('stop_monitoring');
+        });
+    </script>
 </body>
 </html>
