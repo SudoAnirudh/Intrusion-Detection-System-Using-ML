@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple IDS Real-Time Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-card {
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .status-active {
+            background-color: #28a745;
+            box-shadow: 0 0 15px #28a745;
+        }
+        .status-inactive {
+            background-color: #dc3545;
+            box-shadow: 0 0 15px #dc3545;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .alert-item {
+            border-left: 4px solid #dc3545;
+            background-color: #f8d7da;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="display-4">
+                        <i class="fas fa-shield-alt text-primary"></i>
+                        Simple IDS Real-Time Monitor
+                    </h1>
+                    <div class="d-flex align-items-center">
+                        <span class="status-indicator status-inactive" id="statusIndicator"></span>
+                        <span id="monitorStatus" class="me-3">Monitor Inactive</span>
+                        <button id="startBtn" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-play"></i> Start Monitoring
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger btn-lg" disabled>
+                            <i class="fas fa-stop"></i> Stop Monitoring
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-primary" id="totalPackets">0</div>
+                    <div class="metric-label">Total Packets</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-danger" id="intrusions">0</div>
+                    <div class="metric-label">Intrusions</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-warning" id="anomalies">0</div>
+                    <div class="metric-label">Anomalies</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-info" id="activeFlows">0</div>
+                    <div class="metric-label">Active Flows</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-secondary" id="portScans">0</div>
+                    <div class="metric-label">Port Scans</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card dashboard-card metric-card">
+                    <div class="metric-value text-dark" id="ddosAttempts">0</div>
+                    <div class="metric-label">DDoS Attempts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Alerts -->
+        <div class="row">
+            <!-- Network Traffic Chart -->
+            <div class="col-md-8">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line"></i> Network Traffic Analysis
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="col-md-4">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-exclamation-triangle"></i> Recent Alerts
+                        </h5>
+                        <div id="alertsContainer" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Alerts will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Flows and Suspicious IPs -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-network-wired"></i> Top Network Flows
+                        </h5>
+                        <div id="flowsContainer" style="max-height: 300px; overflow-y: auto;">
+                            <!-- Flows will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user-secret"></i> Suspicious IP Addresses
+                        </h5>
+                        <div id="suspiciousIPsContainer" style="max-height: 300px; overflow-y: auto;">
+                            <!-- Suspicious IPs will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let trafficChart;
+        let packetHistory = [];
+        let timeLabels = [];
+
+        // Initialize Chart.js
+        function initializeChart() {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Packets per Second',
+                        data: packetHistory,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update dashboard with new data
+        function updateDashboard(data) {
+            // Update metrics
+            document.getElementById('totalPackets').textContent = data.statistics.total_packets;
+            document.getElementById('intrusions').textContent = data.statistics.intrusions_detected;
+            document.getElementById('anomalies').textContent = data.statistics.anomalies_detected;
+            document.getElementById('activeFlows').textContent = data.statistics.active_flows;
+            document.getElementById('portScans').textContent = data.statistics.port_scan_attempts;
+            document.getElementById('ddosAttempts').textContent = data.statistics.ddos_attempts;
+
+            // Update chart
+            const now = new Date().toLocaleTimeString();
+            timeLabels.push(now);
+            packetHistory.push(data.statistics.total_packets);
+            
+            if (timeLabels.length > 20) {
+                timeLabels.shift();
+                packetHistory.shift();
+            }
+            
+            if (trafficChart) {
+                trafficChart.update();
+            }
+
+            // Update alerts
+            updateAlerts(data.recent_alerts);
+            
+            // Update flows
+            updateFlows(data.top_flows);
+            
+            // Update suspicious IPs
+            updateSuspiciousIPs(data.suspicious_ips);
+        }
+
+        function updateAlerts(alerts) {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+            
+            alerts.reverse().forEach(alert => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert-item';
+                alertDiv.innerHTML = `
+                    <strong>${new Date(alert.timestamp).toLocaleTimeString()}</strong><br>
+                    <small>${alert.src_ip} → ${alert.dst_ip}</small><br>
+                    <span class="badge bg-danger">${alert.anomalies.join(', ')}</span>
+                `;
+                container.appendChild(alertDiv);
+            });
+        }
+
+        function updateFlows(flows) {
+            const container = document.getElementById('flowsContainer');
+            container.innerHTML = '';
+            
+            flows.forEach(flow => {
+                const flowDiv = document.createElement('div');
+                flowDiv.className = 'alert alert-info';
+                flowDiv.innerHTML = `
+                    <strong>${flow[0]}</strong><br>
+                    Packets: ${flow[1].packet_count} | Ports: ${flow[1].ports.length}
+                `;
+                container.appendChild(flowDiv);
+            });
+        }
+
+        function updateSuspiciousIPs(ips) {
+            const container = document.getElementById('suspiciousIPsContainer');
+            container.innerHTML = '';
+            
+            ips.forEach(ip => {
+                const ipDiv = document.createElement('div');
+                ipDiv.className = 'alert alert-warning';
+                ipDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${ip}`;
+                container.appendChild(ipDiv);
+            });
+        }
+
+        // Socket.io event handlers
+        socket.on('connect', () => {
+            console.log('Connected to simple IDS dashboard');
+            initializeChart();
+        });
+
+        socket.on('dashboard_update', (data) => {
+            updateDashboard(data);
+        });
+
+        socket.on('monitoring_status', (data) => {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const monitorStatus = document.getElementById('monitorStatus');
+
+            if (data.status === 'started') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusIndicator.classList.remove('status-inactive');
+                statusIndicator.classList.add('status-active');
+                monitorStatus.textContent = 'Monitor Active';
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusIndicator.classList.remove('status-active');
+                statusIndicator.classList.add('status-inactive');
+                monitorStatus.textContent = 'Monitor Inactive';
+            }
+        });
+
+        // Button event handlers
+        document.getElementById('startBtn').addEventListener('click', () => {
+            socket.emit('start_monitoring');
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            socket.emit('stop_monitoring');
+        });
+    </script>
+</body>
+</html> 

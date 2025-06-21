@@ -1,0 +1,4 @@
+2025-06-22 00:12:25,958 - INFO - Starting simple IDS monitoring...
+2025-06-22 00:12:25,964 - ERROR - Error during packet capture test: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket or conf.L3socket6 to access layer 3
+2025-06-22 00:13:25,303 - INFO -  * Detected change in 'C:\\Users\\aniru\\Documents\\GitHub\\Intrusion-Detection-System-Using-ML\\test_packet_capture.py', reloading
+2025-06-22 00:13:25,347 - INFO -  * Detected change in 'C:\\Users\\aniru\\Documents\\GitHub\\Intrusion-Detection-System-Using-ML\\test_packet_capture.py', reloading
