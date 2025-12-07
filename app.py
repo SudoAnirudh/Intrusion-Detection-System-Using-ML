@@ -1,3 +1,10 @@
+"""
+Network Intrusion Detection System Application
+
+This module serves as the main entry point for the Flask web application.
+It handles routing, model loading, and prediction logic for network intrusion detection.
+"""
+
 import numpy as np
 from flask import Flask, request, jsonify, render_template
 import joblib
@@ -12,6 +19,17 @@ EMAIL_ADDRESS = ""#your email address
 EMAIL_PASSWORD = ""# USE APP PASSWORD
 
 def send_email(subject, message, recipients):
+    """
+    Sends an email with an intrusion alert.
+
+    Args:
+        subject (str): The subject line of the email.
+        message (dict): A dictionary containing the feature names and their values related to the intrusion.
+        recipients (list[str]): A list of email addresses to receive the alert.
+    
+    Returns:
+        None
+    """
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = EMAIL_ADDRESS
@@ -50,14 +68,36 @@ def send_email(subject, message, recipients):
 
 @app.route('/')
 def home():
+    """
+    Renders the home page of the application.
+
+    Returns:
+        str: The rendered HTML content of 'home.html'.
+    """
     return render_template('home.html')
 
 @app.route('/ids') 
 def ids():
+    """
+    Renders the intrusion detection system interface.
+
+    Returns:
+        str: The rendered HTML content of 'index.html'.
+    """
     return render_template('index.html')
 
 @app.route('/predict',methods=['POST'])
 def predict():
+    """
+    Handles form submission for intrusion prediction.
+
+    Reads feature values from the form, preprocesses them (one-hot encoding),
+    uses the loaded model to predict the class of the network traffic, 
+    sends an email alert if an intrusion is detected, and renders the result.
+
+    Returns:
+        str: The rendered HTML content of 'index.html' with the prediction output.
+    """
 
     int_features = [float(x) for x in request.form.values()]
 
@@ -103,6 +143,15 @@ def predict():
 
 @app.route('/results',methods=['POST'])
 def results():
+    """
+    Handles JSON requests for intrusion prediction via API.
+
+    Reads JSON data, predicts the class using the loaded model,
+    sends an email alert if an intrusion is detected, and returns the prediction.
+
+    Returns:
+        Response: A JSON response containing the prediction result (e.g., 'Normal', 'DOS').
+    """
 
     data = request.get_json(force=True)
     predict = model.predict([np.array(list(data.values()))])
