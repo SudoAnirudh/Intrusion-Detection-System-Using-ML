@@ -46,6 +46,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+    /* Button styles */
     button {
       background: #0056b3;
       color: white;
@@ -55,10 +56,41 @@
       cursor: pointer;
       width: 100%;
       font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: background-color 0.2s;
     }
     button:hover {
       background: #004094;
     }
+    button:disabled {
+      background: #7ca7d6;
+      cursor: not-allowed;
+    }
+    button:focus-visible {
+      outline: 2px solid #0056b3;
+      outline-offset: 2px;
+    }
+    /* Spinner styles */
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading .spinner {
+      display: block;
+    }
+
     .input-description {
       font-size: 14px;
       color: #555;
@@ -79,24 +111,24 @@
         </select>
 
         <label for="count">Number of connections to the same destination host:</label>
-        <span class="input-description">Enter a positive integer value.</span>
-        <input type="number" name="count" id="count" min="0" placeholder="count" required />
+        <span class="input-description" id="desc-count">Enter a positive integer value.</span>
+        <input type="number" name="count" id="count" min="0" placeholder="count" required aria-describedby="desc-count" />
 
         <label for="dst_host_diff_srv_rate">Percentage of connections to different services:</label>
-        <span class="input-description">Enter a value between 0 and 1 (e.g., 0.5 for 50%).</span>
-        <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_diff_srv_rate" required />
+        <span class="input-description" id="desc-diff-srv">Enter a value between 0 and 1 (e.g., 0.5 for 50%).</span>
+        <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_diff_srv_rate" required aria-describedby="desc-diff-srv" />
 
         <label for="dst_host_same_src_port_rate">Percentage of connections to the same source port:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_src_port_rate" required />
+        <span class="input-description" id="desc-same-src">Enter a value between 0 and 1.</span>
+        <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_src_port_rate" required aria-describedby="desc-same-src" />
 
         <label for="dst_host_same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_srv_rate" required />
+        <span class="input-description" id="desc-same-srv">Enter a value between 0 and 1.</span>
+        <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_srv_rate" required aria-describedby="desc-same-srv" />
 
         <label for="dst_host_srv_count">Number of connections having the same port number:</label>
-        <span class="input-description">Enter a positive integer value.</span>
-        <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="dst_host_srv_count" required />
+        <span class="input-description" id="desc-srv-count">Enter a positive integer value.</span>
+        <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="dst_host_srv_count" required aria-describedby="desc-srv-count" />
 
         <label for="flag">Status of the connection:</label>
         <select id="flag" name="flag" required>
@@ -115,12 +147,12 @@
         </select>
 
         <label for="same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01" placeholder="same_srv_rate" required />
+        <span class="input-description" id="desc-same-srv-rate">Enter a value between 0 and 1.</span>
+        <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01" placeholder="same_srv_rate" required aria-describedby="desc-same-srv-rate" />
 
         <label for="serror_rate">Percentage of connections activating specific flags:</label>
-        <span class="input-description">Enter a value between 0 and 1.</span>
-        <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01" placeholder="serror_rate" required />
+        <span class="input-description" id="desc-serror">Enter a value between 0 and 1.</span>
+        <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01" placeholder="serror_rate" required aria-describedby="desc-serror" />
 
         <label for="service_http">Destination network service used HTTP:</label>
         <select id="service_http" name="service_http" required>
@@ -128,7 +160,10 @@
           <option value="1">Yes</option>
         </select>
 
-        <button type="submit">Predict</button>
+        <button type="submit" id="submit-btn">
+          <span class="button-text">Predict</span>
+          <div class="spinner" aria-hidden="true"></div>
+        </button>
       </form>
 
       {% if output %}
@@ -136,5 +171,23 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    document.getElementById('nid-form').addEventListener('submit', function(e) {
+      const btn = document.getElementById('submit-btn');
+      const btnText = btn.querySelector('.button-text');
+
+      // Don't prevent default, we want the form to submit.
+      // But we update the UI to show loading state.
+
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btnText.textContent = 'Predicting...';
+
+      // If the form submission is very fast or fails immediately,
+      // the page reload will handle resetting the state.
+      // If it takes time, the user sees the spinner.
+    });
+  </script>
 </body>
 </html>
