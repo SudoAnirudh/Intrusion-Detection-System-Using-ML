@@ -138,7 +138,8 @@
         </select>
 
         <label for="last_flag">Last Flag:</label>
-        <input type="text" name="last_flag" id="last_flag" placeholder="last_flag" maxlength="50" required />
+        <span class="input-description" id="desc-last-flag">Enter a numeric value (e.g., 20).</span>
+        <input type="number" name="last_flag" id="last_flag" placeholder="last_flag" min="0" required aria-describedby="desc-last-flag" />
 
         <label for="logged_in">Successfully logged in (1 for Yes, 0 for No):</label>
         <select id="logged_in" name="logged_in" required>
