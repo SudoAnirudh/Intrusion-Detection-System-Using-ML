@@ -15,21 +15,15 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 model = joblib.load('models/model.pkl')
 
-EMAIL_ADDRESS = ""#your email address
-EMAIL_PASSWORD = ""# USE APP PASSWORD
+EMAIL_ADDRESS = "" # your email address
+EMAIL_PASSWORD = "" # USE APP PASSWORD
+RECIPIENT_EMAIL = "" # RECIPIENT MAIL
 
 def send_email(subject, message, recipients):
-    """
-    Sends an email with an intrusion alert.
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        print("Email credentials are not set. Skipping email alert.")
+        return
 
-    Args:
-        subject (str): The subject line of the email.
-        message (dict): A dictionary containing the feature names and their values related to the intrusion.
-        recipients (list[str]): A list of email addresses to receive the alert.
-    
-    Returns:
-        None
-    """
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = EMAIL_ADDRESS
@@ -133,11 +127,12 @@ def predict():
 
     if output != "Normal":
         # Send email alert
-        send_email(
-            subject="Intrusion Alert!",
-            message={key: value for key, value in request.form.items()},
-            recipients=[""] #RECIPIENT MAIL
-        )
+        if RECIPIENT_EMAIL:
+            send_email(
+                subject="Intrusion Alert!",
+                message={key: value for key, value in request.form.items()},
+                recipients=[RECIPIENT_EMAIL]
+            )
 
     return render_template('index.html', output=output)
 
@@ -178,5 +173,4 @@ def results():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run()
+    app.run(debug=True)

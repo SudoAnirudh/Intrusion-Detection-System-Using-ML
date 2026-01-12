@@ -1,0 +1,11 @@
+# Exclude large/unnecessary files from Vercel deployment
+NSL_Dataset/
+pandas_profiling.html
+*.ipynb
+*.pdf
+.ipynb_checkpoints/
+inspect_model.py
+corrm.csv
+num_summary.csv
+.git/
+.Agent/

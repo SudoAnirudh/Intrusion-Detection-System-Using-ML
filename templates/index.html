@@ -1,193 +1,525 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Network Intrusion Detection System</title>
-  <link rel="stylesheet" href="static/style.css">
+  <title>Scanner Dashboard | GuardNet AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
+    .dashboard-header {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .login {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 600px;
-      overflow-y: auto;
-    }
-    .login h1 {
-      color: #0056b3;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    /* Button styles */
-    button {
-      background: #0056b3;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      transition: background-color 0.2s;
-    }
-    button:hover {
-      background: #004094;
-    }
-    button:disabled {
-      background: #7ca7d6;
-      cursor: not-allowed;
-    }
-    button:focus-visible {
-      outline: 2px solid #0056b3;
-      outline-offset: 2px;
-    }
-    /* Spinner styles */
-    .spinner {
-      display: none;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #ffffff;
-      border-top: 2px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading .spinner {
-      display: block;
+      margin-bottom: 40px;
     }
 
-    .input-description {
-      font-size: 14px;
-      color: #555;
+    .status-badge {
+      background: rgba(0, 255, 136, 0.1);
+      color: #00ff88;
+      padding: 5px 15px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00ff88;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scan-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 11, 30, 0.95);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loader {
+      width: 100px;
+      height: 100px;
+      border: 5px solid var(--glass-border);
+      border-top: 5px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="login">
-      <h1>Network Intrusion Detection System</h1>
+  <div id="scan-overlay" class="scan-overlay">
+    <div class="loader"></div>
+    <h2 style="font-size: 1.5rem;">Analyzing Network Vectors...</h2>
+    <p style="color: var(--text-muted); margin-top: 10px;">Running multi-class classifier model</p>
+  </div>
+
+  <nav>
+    <div class="nav-content">
+      <a href="/" class="nav-logo">🛡️ GuardNet AI</a>
+      <ul class="nav-links" style="margin-left: auto; margin-right: 20px;">
+        <li><a href="/">Back to Portal</a></li>
+      </ul>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        Engine Online
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 120px;">
+    <div class="dashboard-header">
+      <div>
+        <h1>Intrusion Command Center</h1>
+        <p style="color: var(--text-muted);">Switch between manual audits and real-time live monitoring.</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="switchMode('manual')" id="btn-manual" class="btn btn-primary"
+          style="font-size: 0.8rem; padding: 10px 20px;">Manual Mode</button>
+        <button onclick="switchMode('live')" id="btn-live" class="btn"
+          style="font-size: 0.8rem; padding: 10px 20px; border: 1px solid var(--glass-border);">Live Monitor</button>
+      </div>
+    </div>
+
+    <!-- Live Monitor (Hidden by default) -->
+    <div id="live-panel" style="display: none; margin-bottom: 40px;">
+      <div class="features-grid">
+        <!-- Main Chart -->
+        <div class="glass-card" style="padding: 30px; grid-column: span 2;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.25rem;">📡 Network Traffic Pulse</h2>
+            <div id="traffic-status" style="color: #00ff88; font-weight: 800; font-size: 0.75rem;">SCANNING ACTIVE</div>
+          </div>
+          <div style="height: 250px;">
+            <canvas id="liveChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Threat Intensity Gauge -->
+        <div class="glass-card"
+          style="padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase;">Threat Level</h3>
+          <div id="threat-gauge" style="font-size: 3rem; font-weight: 800; margin: 20px 0; color: #00ff88;">0%</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Risk Concentration</div>
+        </div>
+      </div>
+
+      <!-- Live Log Terminal -->
+      <div class="glass-card"
+        style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(0, 242, 254, 0.2);">
+        <div
+          style="display: flex; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></div>
+          <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">kernel.log - Intrusion Detection
+            Probe</span>
+        </div>
+        <div id="log-terminal"
+          style="font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; color: #00ff88; height: 150px; overflow-y: auto; text-align: left;">
+          [SYSTEM] Initializing real-time sensor...<br>
+          [SYSTEM] Model LogisticRegression loaded.<br>
+          [SYSTEM] Listening on virtual interface eth0...<br>
+        </div>
+      </div>
+    </div>
+
+    <div id="manual-panel" class="glass-card form-container">
       <form action="{{ url_for('predict') }}" method="post" id="nid-form">
-        <label for="attack">Attack:</label>
-        <select id="attack" name="attack" required>
-          <option value="0">Other</option>
-          <option value="1">neptune</option>
-          <option value="2">normal</option>
-          <option value="3">satan</option>
-        </select>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="attack">Traffic Type Context</label>
+            <select id="attack" name="attack" required>
+              <option value="0">General/Other</option>
+              <option value="1">Neptune</option>
+              <option value="2">Normal Baseline</option>
+              <option value="3">Satan (Probe)</option>
+            </select>
+          </div>
 
-        <label for="count">Number of connections to the same destination host:</label>
-        <span class="input-description" id="desc-count">Enter a positive integer value.</span>
-        <input type="number" name="count" id="count" min="0" placeholder="count" required aria-describedby="desc-count" />
+          <div class="form-group">
+            <label for="flag">Connection Status Flag</label>
+            <select id="flag" name="flag" required>
+              <option value="0">Other/Unknown</option>
+              <option value="1">S0 (Initiated)</option>
+              <option value="2">SF (Successful)</option>
+            </select>
+          </div>
 
-        <label for="dst_host_diff_srv_rate">Percentage of connections to different services:</label>
-        <span class="input-description" id="desc-diff-srv">Enter a value between 0 and 1 (e.g., 0.5 for 50%).</span>
-        <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_diff_srv_rate" required aria-describedby="desc-diff-srv" />
+          <div class="form-group">
+            <label for="service_http">HTTP Protocol Usage</label>
+            <select id="service_http" name="service_http" required>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
 
-        <label for="dst_host_same_src_port_rate">Percentage of connections to the same source port:</label>
-        <span class="input-description" id="desc-same-src">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_src_port_rate" required aria-describedby="desc-same-src" />
+          <div class="form-group">
+            <label for="logged_in">Authentication Status</label>
+            <select id="logged_in" name="logged_in" required>
+              <option value="0">Unauthenticated</option>
+              <option value="1">Authenticated</option>
+            </select>
+          </div>
+        </div>
 
-        <label for="dst_host_same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description" id="desc-same-srv">Enter a value between 0 and 1.</span>
-        <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01" placeholder="dst_host_same_srv_rate" required aria-describedby="desc-same-srv" />
+        <div style="height: 1px; background: var(--glass-border); margin: 20px 0;"></div>
 
-        <label for="dst_host_srv_count">Number of connections having the same port number:</label>
-        <span class="input-description" id="desc-srv-count">Enter a positive integer value.</span>
-        <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="dst_host_srv_count" required aria-describedby="desc-srv-count" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="count">Connection Count (Same Host)</label>
+            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required />
+            <span class="input-description">Number of connections to target host</span>
+          </div>
 
-        <label for="flag">Status of the connection:</label>
-        <select id="flag" name="flag" required>
-          <option value="0">Other</option>
-          <option value="1">S0</option>
-          <option value="2">SF</option>
-        </select>
+          <div class="form-group">
+            <label for="dst_host_srv_count">Port Specific Connections</label>
+            <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="e.g. 25"
+              required />
+          </div>
 
-        <label for="last_flag">Last Flag:</label>
-        <input type="text" name="last_flag" id="last_flag" placeholder="last_flag" maxlength="50" required />
+          <div class="form-group">
+            <label for="same_srv_rate">System Service Stability</label>
+            <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01"
+              placeholder="0.00 - 1.00" required />
+          </div>
 
-        <label for="logged_in">Successfully logged in (1 for Yes, 0 for No):</label>
-        <select id="logged_in" name="logged_in" required>
-          <option value="0">No</option>
-          <option value="1">Yes</option>
-        </select>
+          <div class="form-group">
+            <label for="serror_rate">SYN-Error Magnitude</label>
+            <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01"
+              placeholder="0.00 - 1.00" required />
+          </div>
 
-        <label for="same_srv_rate">Percentage of connections to the same service:</label>
-        <span class="input-description" id="desc-same-srv-rate">Enter a value between 0 and 1.</span>
-        <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01" placeholder="same_srv_rate" required aria-describedby="desc-same-srv-rate" />
+          <div class="form-group">
+            <label for="dst_host_same_srv_rate">Target Affinity Rate</label>
+            <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01"
+              placeholder="0.00 - 1.00" required />
+          </div>
 
-        <label for="serror_rate">Percentage of connections activating specific flags:</label>
-        <span class="input-description" id="desc-serror">Enter a value between 0 and 1.</span>
-        <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01" placeholder="serror_rate" required aria-describedby="desc-serror" />
+          <div class="form-group">
+            <label for="dst_host_diff_srv_rate">Service Diversity index</label>
+            <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01"
+              placeholder="0.00 - 1.00" required />
+          </div>
 
-        <label for="service_http">Destination network service used HTTP:</label>
-        <select id="service_http" name="service_http" required>
-          <option value="0">No</option>
-          <option value="1">Yes</option>
-        </select>
+          <div class="form-group">
+            <label for="dst_host_same_src_port_rate">Port-Source Convergence</label>
+            <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1"
+              step="0.01" placeholder="0.00 - 1.00" required />
+          </div>
 
-        <button type="submit" id="submit-btn">
-          <span class="button-text">Predict</span>
-          <div class="spinner" aria-hidden="true"></div>
+          <div class="form-group">
+            <label for="last_flag">Vector ID (Last Flag)</label>
+            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;">
+          Initiate Security Analysis
         </button>
       </form>
 
       {% if output %}
-      <h3>Attack Class Prediction: <b style="color: red;">{{ output }}</b></h3>
+      <div class="result-box" id="latest-result">
+        <p style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px;">Analysis
+          Result</p>
+        <h3 class="{% if output == 'Normal' %}normal-alert{% else %}attack-alert{% endif %}">
+          {{ output }}
+        </h3>
+        <p style="margin-top: 15px; font-size: 0.9rem;">
+          {% if output == 'Normal' %}
+          No immediate threats detected. Traffic patterns align with baseline security protocols.
+          {% elif output == 'DOS' %}
+          CRITICAL: Resource exhaustion signatures detected. Potential Denial of Service activity.
+          {% elif output == 'PROBE' %}
+          WARNING: Port scanning or surveillance behavior identified.
+          {% else %}
+          ALERT: Unauthorized access patterns detected in current vector.
+          {% endif %}
+        </p>
+        <button onclick="saveToHistory('{{ output }}')" class="btn"
+          style="margin-top: 20px; font-size: 0.8rem; padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">Save
+          to History</button>
+      </div>
       {% endif %}
     </div>
+
+    <!-- History Section -->
+    <div class="glass-card"
+      style="margin-top: 40px; padding: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">
+      <h2 style="margin-bottom: 20px;">📜 Analysis Vault</h2>
+      <div id="history-list" style="display: grid; gap: 15px;">
+        <p style="color: var(--text-muted);">No historical data available. Run a scan to begin logging.</p>
+      </div>
+      <button onclick="clearHistory()" class="btn"
+        style="margin-top: 20px; font-size: 0.7rem; color: var(--accent); background: transparent; padding: 0;">Clear
+        All Records</button>
+    </div>
+  </div>
   </div>
 
   <script>
-    document.getElementById('nid-form').addEventListener('submit', function(e) {
-      const btn = document.getElementById('submit-btn');
-      const btnText = btn.querySelector('.button-text');
+    const form = document.getElementById('nid-form');
+    const overlay = document.getElementById('scan-overlay');
 
-      // Don't prevent default, we want the form to submit.
-      // But we update the UI to show loading state.
+    if (form) {
+      form.addEventListener('submit', function () {
+        overlay.style.display = 'flex';
+      });
+    }
 
-      btn.disabled = true;
-      btn.classList.add('loading');
-      btnText.textContent = 'Predicting...';
+    let liveInterval = null;
+    let liveChart = null;
+    const historyList = document.getElementById('history-list');
 
-      // If the form submission is very fast or fails immediately,
-      // the page reload will handle resetting the state.
-      // If it takes time, the user sees the spinner.
-    });
+    function switchMode(mode) {
+      const manualPanel = document.getElementById('manual-panel');
+      const livePanel = document.getElementById('live-panel');
+      const btnManual = document.getElementById('btn-manual');
+      const btnLive = document.getElementById('btn-live');
+
+      if (mode === 'live') {
+        manualPanel.style.display = 'none';
+        livePanel.style.display = 'block';
+        btnLive.classList.add('btn-primary');
+        btnManual.classList.remove('btn-primary');
+        btnManual.style.border = '1px solid var(--glass-border)';
+        startLiveMonitor();
+      } else {
+        manualPanel.style.display = 'block';
+        livePanel.style.display = 'none';
+        btnManual.classList.add('btn-primary');
+        btnLive.classList.remove('btn-primary');
+        btnLive.style.border = '1px solid var(--glass-border)';
+        stopLiveMonitor();
+      }
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('liveChart').getContext('2d');
+      liveChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Threat Probability',
+            data: [],
+            borderColor: '#00f2fe',
+            backgroundColor: 'rgba(0, 242, 254, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    async function startLiveMonitor() {
+      if (!liveChart) initChart();
+      if (liveInterval) return;
+
+      liveInterval = setInterval(async () => {
+        // Simulating packet data fetch
+        const mockData = {
+          attack: Math.floor(Math.random() * 4),
+          count: Math.floor(Math.random() * 500),
+          dst_host_diff_srv_rate: Math.random().toFixed(2),
+          dst_host_same_src_port_rate: Math.random().toFixed(2),
+          dst_host_same_srv_rate: Math.random().toFixed(2),
+          dst_host_srv_count: Math.floor(Math.random() * 100),
+          flag: Math.floor(Math.random() * 3),
+          last_flag: Math.floor(Math.random() * 21),
+          logged_in: Math.random() > 0.5 ? 1 : 0,
+          same_srv_rate: Math.random().toFixed(2),
+          serror_rate: Math.random().toFixed(2),
+          service_http: Math.random() > 0.8 ? 1 : 0,
+          dst_host_same_srv_rate: Math.random().toFixed(2)
+        };
+
+        try {
+          const response = await fetch('/results', {
+            method: 'POST',
+            body: JSON.stringify(mockData),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const prediction = await response.json();
+
+          updateLiveUI(prediction);
+        } catch (e) {
+          console.error("Live update failed", e);
+        }
+      }, 3000);
+    }
+
+    function updateLiveUI(prediction) {
+      const time = new Date().toLocaleTimeString();
+      const value = prediction === 'Normal' ? 5 + Math.random() * 10 : 65 + Math.random() * 35;
+      const logTerminal = document.getElementById('log-terminal');
+      const threatGauge = document.getElementById('threat-gauge');
+
+      // Update Gauge
+      if (threatGauge) {
+        threatGauge.textContent = Math.round(value) + '%';
+        threatGauge.style.color = value > 50 ? '#ff007a' : '#00ff88';
+      }
+
+      // Update Chart
+      if (liveChart) {
+        if (liveChart.data.labels.length > 20) {
+          liveChart.data.labels.shift();
+          liveChart.data.datasets[0].data.shift();
+        }
+        liveChart.data.labels.push(time);
+        liveChart.data.datasets[0].data.push(value);
+        liveChart.data.datasets[0].borderColor = value > 50 ? '#ff007a' : '#00f2fe';
+        liveChart.update('none');
+      }
+
+      // Update Terminal Log
+      if (logTerminal) {
+        const logEntry = document.createElement('div');
+        const statusText = prediction === 'Normal' ? 'OKAY' : 'ALERT';
+        const statusColor = prediction === 'Normal' ? '#00ff88' : '#ff007a';
+        logEntry.innerHTML = `<span style="color: var(--text-muted)">[${time}]</span> Analysis complete: Class <span style="color: ${statusColor}">${prediction}</span> [Result: ${statusText}]`;
+        logTerminal.appendChild(logEntry);
+        logTerminal.scrollTop = logTerminal.scrollHeight;
+      }
+
+      const statusEl = document.getElementById('traffic-status');
+      if (prediction !== 'Normal') {
+        saveToHistory(prediction, true);
+        if (statusEl) statusEl.innerHTML = `<span style="color: #ff007a">🚨 BREACH DETECTED</span>`;
+      } else {
+        if (statusEl) statusEl.innerHTML = `<span style="color: #00ff88">SCANNING ACTIVE</span>`;
+      }
+    }
+
+    function stopLiveMonitor() {
+      clearInterval(liveInterval);
+      liveInterval = null;
+    }
+
+    function saveToHistory(result, isLive = false) {
+      const history = JSON.parse(localStorage.getItem('scan_history') || '[]');
+      const entry = {
+        id: Date.now(),
+        result: result,
+        timestamp: new Date().toLocaleString(),
+        status: result === 'Normal' ? 'Secure' : 'Threat'
+      };
+
+      // Avoid spamming history in live mode
+      if (isLive && history.length > 0 && history[0].result === result && (Date.now() - history[0].id < 10000)) {
+        return;
+      }
+
+      history.unshift(entry);
+      localStorage.setItem('scan_history', JSON.stringify(history.slice(0, 10)));
+      renderHistory();
+
+      if (!isLive) {
+        const btn = window.event.target;
+        btn.textContent = 'Saved to Vault ✓';
+        btn.style.color = '#00ff88';
+        btn.disabled = true;
+      }
+    }
+
+    function clearHistory() {
+      if (confirm('Purge all security records?')) {
+        localStorage.removeItem('scan_history');
+        renderHistory();
+      }
+    }
+
+    function renderHistory() {
+      const historyList = document.getElementById('history-list');
+      if (!historyList) return;
+
+      const history = JSON.parse(localStorage.getItem('scan_history') || '[]');
+
+      if (history.length === 0) {
+        historyList.innerHTML = '<p style="color: var(--text-muted);">No historical data available. Run a scan to begin logging.</p>';
+        return;
+      }
+
+      historyList.innerHTML = history.map(item => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${item.status === 'Secure' ? '#00ff88' : '#ff007a'}">
+                    <div>
+                        <span style="font-weight: 800; color: ${item.status === 'Secure' ? '#00ff88' : '#ff007a'}">${item.result}</span>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${item.timestamp}</div>
+                    </div>
+                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Vector Checked</div>
+                </div>
+            `).join('');
+    }
+
+    renderHistory();
   </script>
 </body>
+
 </html>
