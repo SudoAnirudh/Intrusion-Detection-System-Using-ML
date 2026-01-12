@@ -5,3 +5,7 @@
 ## 2026-01-08 - Linking Descriptions with aria-describedby
 **Learning:** Input fields often have helper text in `<span>` tags. These are invisible to screen readers unless programmatically linked.
 **Action:** Always add `id` to the helper text span and `aria-describedby="[id]"` to the input field. This is a low-effort, high-impact accessibility win.
+
+## 2026-01-09 - Helper Text for Data Constraints
+**Learning:** When inputs have strict numerical constraints (like range 0-21), relying solely on `min/max` attributes is insufficient for UX. Users need explicit textual guidance.
+**Action:** Combine `min/max` attributes with a visible helper span explaining the constraint, and link them via `aria-describedby` for accessibility.
