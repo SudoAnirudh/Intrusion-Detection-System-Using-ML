@@ -223,8 +223,8 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="count">Connection Count (Same Host)</label>
-            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required />
-            <span class="input-description">Number of connections to target host</span>
+            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required aria-describedby="count-desc" />
+            <span id="count-desc" class="input-description">Number of connections to target host</span>
           </div>
 
           <div class="form-group">
@@ -265,7 +265,8 @@
 
           <div class="form-group">
             <label for="last_flag">Vector ID (Last Flag)</label>
-            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required />
+            <input type="number" name="last_flag" id="last_flag" min="0" max="21" placeholder="e.g. 18" required aria-describedby="last_flag-desc" />
+            <span id="last_flag-desc" class="input-description">Feature range: 0 - 21</span>
           </div>
         </div>
 
