@@ -5,3 +5,7 @@
 ## 2026-01-08 - Linking Descriptions with aria-describedby
 **Learning:** Input fields often have helper text in `<span>` tags. These are invisible to screen readers unless programmatically linked.
 **Action:** Always add `id` to the helper text span and `aria-describedby="[id]"` to the input field. This is a low-effort, high-impact accessibility win.
+
+## 2026-10-18 - Communicating Mode State
+**Learning:** Exclusive mode toggle buttons (like Manual vs Live) visually indicate state with classes, but are ambiguous to screen readers.
+**Action:** Use `aria-pressed="true/false"` on the buttons and update it via JS to strictly communicate which mode is currently active.
