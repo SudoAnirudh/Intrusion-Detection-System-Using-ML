@@ -130,9 +130,9 @@
       </div>
       <div style="display: flex; gap: 10px;">
         <button onclick="switchMode('manual')" id="btn-manual" class="btn btn-primary"
-          style="font-size: 0.8rem; padding: 10px 20px;">Manual Mode</button>
+          style="font-size: 0.8rem; padding: 10px 20px;" aria-pressed="true">Manual Mode</button>
         <button onclick="switchMode('live')" id="btn-live" class="btn"
-          style="font-size: 0.8rem; padding: 10px 20px; border: 1px solid var(--glass-border);">Live Monitor</button>
+          style="font-size: 0.8rem; padding: 10px 20px; border: 1px solid var(--glass-border);" aria-pressed="false">Live Monitor</button>
       </div>
     </div>
 
@@ -223,8 +223,8 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="count">Connection Count (Same Host)</label>
-            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required />
-            <span class="input-description">Number of connections to target host</span>
+            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required aria-describedby="count-desc" />
+            <span class="input-description" id="count-desc">Number of connections to target host</span>
           </div>
 
           <div class="form-group">
@@ -265,7 +265,7 @@
 
           <div class="form-group">
             <label for="last_flag">Vector ID (Last Flag)</label>
-            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required />
+            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required min="0" max="21" />
           </div>
         </div>
 
@@ -339,6 +339,8 @@
         btnLive.classList.add('btn-primary');
         btnManual.classList.remove('btn-primary');
         btnManual.style.border = '1px solid var(--glass-border)';
+        btnLive.setAttribute('aria-pressed', 'true');
+        btnManual.setAttribute('aria-pressed', 'false');
         startLiveMonitor();
       } else {
         manualPanel.style.display = 'block';
@@ -346,6 +348,8 @@
         btnManual.classList.add('btn-primary');
         btnLive.classList.remove('btn-primary');
         btnLive.style.border = '1px solid var(--glass-border)';
+        btnManual.setAttribute('aria-pressed', 'true');
+        btnLive.setAttribute('aria-pressed', 'false');
         stopLiveMonitor();
       }
     }
