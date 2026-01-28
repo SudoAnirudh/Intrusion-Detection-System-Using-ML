@@ -5,3 +5,7 @@
 ## 2026-01-08 - Linking Descriptions with aria-describedby
 **Learning:** Input fields often have helper text in `<span>` tags. These are invisible to screen readers unless programmatically linked.
 **Action:** Always add `id` to the helper text span and `aria-describedby="[id]"` to the input field. This is a low-effort, high-impact accessibility win.
+
+## 2026-01-08 - Toggle Buttons State Communication
+**Learning:** Visual toggle buttons that switch view modes (like Manual vs Live) often lack semantic state communication.
+**Action:** Use `aria-pressed="true/false"` for toggle buttons. Combine with `aria-controls` to indicate which section is being affected. This makes the interaction clear for non-visual users.
