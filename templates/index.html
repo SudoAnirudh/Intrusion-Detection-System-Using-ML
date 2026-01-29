@@ -130,8 +130,10 @@
       </div>
       <div style="display: flex; gap: 10px;">
         <button onclick="switchMode('manual')" id="btn-manual" class="btn btn-primary"
+          aria-pressed="true" aria-controls="manual-panel"
           style="font-size: 0.8rem; padding: 10px 20px;">Manual Mode</button>
         <button onclick="switchMode('live')" id="btn-live" class="btn"
+          aria-pressed="false" aria-controls="live-panel"
           style="font-size: 0.8rem; padding: 10px 20px; border: 1px solid var(--glass-border);">Live Monitor</button>
       </div>
     </div>
@@ -223,8 +225,8 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="count">Connection Count (Same Host)</label>
-            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required />
-            <span class="input-description">Number of connections to target host</span>
+            <input type="number" name="count" id="count" min="0" placeholder="e.g. 5" required aria-describedby="count-desc" />
+            <span class="input-description" id="count-desc">Number of connections to target host</span>
           </div>
 
           <div class="form-group">
@@ -333,7 +335,12 @@
       const btnManual = document.getElementById('btn-manual');
       const btnLive = document.getElementById('btn-live');
 
-      if (mode === 'live') {
+      const isLive = mode === 'live';
+
+      btnLive.setAttribute('aria-pressed', isLive);
+      btnManual.setAttribute('aria-pressed', !isLive);
+
+      if (isLive) {
         manualPanel.style.display = 'none';
         livePanel.style.display = 'block';
         btnLive.classList.add('btn-primary');
