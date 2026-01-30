@@ -232,42 +232,49 @@
           <div class="form-group">
             <label for="dst_host_srv_count">Port Specific Connections</label>
             <input type="number" name="dst_host_srv_count" id="dst_host_srv_count" min="0" placeholder="e.g. 25"
-              required />
+              required aria-describedby="dst-host-srv-count-desc" />
+            <span class="input-description" id="dst-host-srv-count-desc">Count of connections to the same service at destination</span>
           </div>
 
           <div class="form-group">
             <label for="same_srv_rate">System Service Stability</label>
             <input type="number" name="same_srv_rate" id="same_srv_rate" min="0" max="1" step="0.01"
-              placeholder="0.00 - 1.00" required />
+              placeholder="0.00 - 1.00" required aria-describedby="same-srv-rate-desc" />
+            <span class="input-description" id="same-srv-rate-desc">Percentage of connections to the same service</span>
           </div>
 
           <div class="form-group">
             <label for="serror_rate">SYN-Error Magnitude</label>
             <input type="number" name="serror_rate" id="serror_rate" min="0" max="1" step="0.01"
-              placeholder="0.00 - 1.00" required />
+              placeholder="0.00 - 1.00" required aria-describedby="serror-rate-desc" />
+            <span class="input-description" id="serror-rate-desc">Percentage of connections with SYN errors</span>
           </div>
 
           <div class="form-group">
             <label for="dst_host_same_srv_rate">Target Affinity Rate</label>
             <input type="number" name="dst_host_same_srv_rate" id="dst_host_same_srv_rate" min="0" max="1" step="0.01"
-              placeholder="0.00 - 1.00" required />
+              placeholder="0.00 - 1.00" required aria-describedby="dst-host-same-srv-rate-desc" />
+            <span class="input-description" id="dst-host-same-srv-rate-desc">Rate of connections to the same service at destination</span>
           </div>
 
           <div class="form-group">
             <label for="dst_host_diff_srv_rate">Service Diversity index</label>
             <input type="number" name="dst_host_diff_srv_rate" id="dst_host_diff_srv_rate" min="0" max="1" step="0.01"
-              placeholder="0.00 - 1.00" required />
+              placeholder="0.00 - 1.00" required aria-describedby="dst-host-diff-srv-rate-desc" />
+            <span class="input-description" id="dst-host-diff-srv-rate-desc">Rate of connections to different services at destination</span>
           </div>
 
           <div class="form-group">
             <label for="dst_host_same_src_port_rate">Port-Source Convergence</label>
             <input type="number" name="dst_host_same_src_port_rate" id="dst_host_same_src_port_rate" min="0" max="1"
-              step="0.01" placeholder="0.00 - 1.00" required />
+              step="0.01" placeholder="0.00 - 1.00" required aria-describedby="dst-host-same-src-port-rate-desc" />
+            <span class="input-description" id="dst-host-same-src-port-rate-desc">Rate of connections to the same source port</span>
           </div>
 
           <div class="form-group">
             <label for="last_flag">Vector ID (Last Flag)</label>
-            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required />
+            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required aria-describedby="last-flag-desc" />
+            <span class="input-description" id="last-flag-desc">Specific vector identifier</span>
           </div>
         </div>
 
