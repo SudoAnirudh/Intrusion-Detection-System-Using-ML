@@ -172,7 +172,7 @@
           <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">kernel.log - Intrusion Detection
             Probe</span>
         </div>
-        <div id="log-terminal"
+        <div id="log-terminal" role="log" aria-live="polite" aria-label="Real-time system logs" tabindex="0"
           style="font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; color: #00ff88; height: 150px; overflow-y: auto; text-align: left;">
           [SYSTEM] Initializing real-time sensor...<br>
           [SYSTEM] Model LogisticRegression loaded.<br>
@@ -273,7 +273,7 @@
 
           <div class="form-group">
             <label for="last_flag">Vector ID (Last Flag)</label>
-            <input type="number" name="last_flag" id="last_flag" placeholder="e.g. 18" required aria-describedby="last-flag-desc" />
+            <input type="number" name="last_flag" id="last_flag" min="0" max="21" placeholder="e.g. 18" required aria-describedby="last-flag-desc" />
             <span class="input-description" id="last-flag-desc">Specific vector identifier</span>
           </div>
         </div>
