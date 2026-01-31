@@ -9,3 +9,7 @@
 ## 2026-01-08 - Accessible Toggle Buttons
 **Learning:** Custom buttons acting as mode switches need state indication for screen readers. `aria-pressed` is a simple way to indicate "on/off" status for toggle buttons.
 **Action:** When implementing view toggles, add `aria-pressed="true/false"` and `aria-controls="[target-id]"`. Ensure JavaScript updates the `aria-pressed` state on click.
+
+## 2026-01-31 - Accessible Live Logs
+**Learning:** Dynamic log updates (e.g., scrolling terminals) are invisible to screen readers without specific roles. Also, `overflow: auto` divs are not keyboard-focusable by default.
+**Action:** Use `role="log"` and `aria-live="polite"` for the container. Add `tabindex="0"` to ensure keyboard users can focus and scroll the log history.
