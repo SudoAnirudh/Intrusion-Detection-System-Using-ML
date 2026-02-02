@@ -13,3 +13,7 @@
 ## 2026-01-31 - Accessible Live Logs
 **Learning:** Dynamic log updates (e.g., scrolling terminals) are invisible to screen readers without specific roles. Also, `overflow: auto` divs are not keyboard-focusable by default.
 **Action:** Use `role="log"` and `aria-live="polite"` for the container. Add `tabindex="0"` to ensure keyboard users can focus and scroll the log history.
+
+## 2026-02-02 - Accessible Dynamic Meters
+**Learning:** Dynamic visual indicators like gauges need `role="meter"` to be accessible. Simply updating text content isn't enough for screen readers to understand the context and changes.
+**Action:** Add `role="meter"`, `aria-valuemin`, `aria-valuemax`, and `aria-label` to the container. Use JavaScript to update `aria-valuenow` and `aria-valuetext` alongside the visual update.
