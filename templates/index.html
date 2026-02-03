@@ -156,7 +156,7 @@
         <div class="glass-card"
           style="padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
           <h3 style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase;">Threat Level</h3>
-          <div id="threat-gauge" style="font-size: 3rem; font-weight: 800; margin: 20px 0; color: #00ff88;">0%</div>
+          <div id="threat-gauge" role="meter" aria-label="Threat Risk Level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% - Low Risk" style="font-size: 3rem; font-weight: 800; margin: 20px 0; color: #00ff88;">0%</div>
           <div style="font-size: 0.8rem; color: var(--text-muted);">Risk Concentration</div>
         </div>
       </div>
@@ -437,8 +437,14 @@
 
       // Update Gauge
       if (threatGauge) {
-        threatGauge.textContent = Math.round(value) + '%';
+        const roundedValue = Math.round(value);
+        threatGauge.textContent = roundedValue + '%';
         threatGauge.style.color = value > 50 ? '#ff007a' : '#00ff88';
+
+        // Update ARIA attributes
+        threatGauge.setAttribute('aria-valuenow', roundedValue);
+        const riskLevel = value > 50 ? 'High Risk' : 'Low Risk';
+        threatGauge.setAttribute('aria-valuetext', `${roundedValue}% - ${riskLevel}`);
       }
 
       // Update Chart
