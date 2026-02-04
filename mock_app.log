@@ -6,5 +6,7 @@
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 410-907-091
-127.0.0.1 - - [31/Jan/2026 14:47:44] "GET /ids HTTP/1.1" 200 -
-127.0.0.1 - - [31/Jan/2026 14:47:44] "GET /static/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Feb/2026 14:56:19] "GET /ids HTTP/1.1" 200 -
+127.0.0.1 - - [04/Feb/2026 14:56:20] "GET /static/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Feb/2026 14:56:22] "POST /predict HTTP/1.1" 200 -
+127.0.0.1 - - [04/Feb/2026 14:56:22] "[36mGET /static/style.css HTTP/1.1[0m" 304 -

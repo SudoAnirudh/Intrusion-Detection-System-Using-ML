@@ -284,7 +284,7 @@
       </form>
 
       {% if output %}
-      <div class="result-box" id="latest-result">
+      <div class="result-box" id="latest-result" role="status" tabindex="-1">
         <p style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px;">Analysis
           Result</p>
         <h3 class="{% if output == 'Normal' %}normal-alert{% else %}attack-alert{% endif %}">
@@ -316,7 +316,7 @@
         <p style="color: var(--text-muted);">No historical data available. Run a scan to begin logging.</p>
       </div>
       <button onclick="clearHistory()" class="btn"
-        style="margin-top: 20px; font-size: 0.7rem; color: var(--accent); background: transparent; padding: 0;">Clear
+        style="margin-top: 20px; font-size: 0.7rem; color: var(--accent); background: transparent; padding: 8px 16px; border: 1px solid var(--accent);">Clear
         All Records</button>
     </div>
   </div>
@@ -539,6 +539,11 @@
     }
 
     renderHistory();
+
+    const resultBox = document.getElementById('latest-result');
+    if (resultBox) {
+      resultBox.focus();
+    }
   </script>
 </body>
 
