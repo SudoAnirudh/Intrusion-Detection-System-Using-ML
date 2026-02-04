@@ -17,3 +17,7 @@
 ## 2026-06-15 - Dynamic Meter Accessibility
 **Learning:** Visual gauges showing percentage (like threat levels) need `role="meter"` and programmatic updates to `aria-valuenow`.
 **Action:** When updating the visual text of a gauge in JS, always update `aria-valuenow` and `aria-valuetext` to ensure screen readers receive the same live data.
+
+## 2026-06-16 - Focus Management for Synchronous Reloads
+**Learning:** When a form submits synchronously and reloads the page with a result, screen reader users lose context and start at the top of the page.
+**Action:** Add `tabindex="-1"` and `role="status"` to the result container, and use JavaScript to programmatically `focus()` the element on page load.
