@@ -294,3 +294,27 @@ footer {
     display: none;
   }
 }
+
+/* --- Palette Enhancements --- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fix for dropdown options visibility in dark mode */
+select option {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* Improved keyboard focus visibility */
+:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 4px;
+  border-radius: 2px;
+}

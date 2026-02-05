@@ -21,3 +21,7 @@
 ## 2026-06-16 - Focus Management for Synchronous Reloads
 **Learning:** When a form submits synchronously and reloads the page with a result, screen reader users lose context and start at the top of the page.
 **Action:** Add `tabindex="-1"` and `role="status"` to the result container, and use JavaScript to programmatically `focus()` the element on page load.
+
+## 2026-08-12 - Dark Mode Dropdowns & Focus Visibility
+**Learning:** Native `<select>` dropdowns in dark themes often default to system colors (white background) for options, creating poor contrast or white-on-white text if `color: white` is set on the parent.
+**Action:** Always explicitly style `select option` with the theme's background and text colors. Also, enforcing a global `:focus-visible` ring with `!important` ensures consistent keyboard accessibility without relying on browser defaults which may be invisible on dark backgrounds.
